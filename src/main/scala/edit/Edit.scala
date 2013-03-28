@@ -5,6 +5,7 @@ import javafx.stage.Stage
 import javafx.scene.Scene
 import javafx.scene.layout.StackPane
 import javafx.scene.text.Font
+import java.io.File
 
 class Edit extends Application {
   def start(stage: Stage) {
@@ -16,8 +17,6 @@ class Edit extends Application {
     stage.setHeight(600)
 
     val doc = new Document()
-    doc.insert("Hello World!\n\n\tdef start(stage: Stage) {\n\t\tstage.setTitle(\"edit\"))")
-
     val editor = new Editor(doc)
     val root = new StackPane()
     root.getChildren.add(editor)
@@ -28,6 +27,12 @@ class Edit extends Application {
 
     stage.show()
     editor.init()
+
+    // check if a file should be opened
+    if (getParameters.getRaw.size() > 0) {
+      val file = new File(getParameters.getRaw.get(0))
+      editor.load(file)
+    }
 
     editor.requestFocus()
   }

@@ -2,7 +2,7 @@ package edit
 
 import collection.mutable.ArrayBuffer
 
-class Document {
+class Document() {
 
   var tabSize = 4
   var tabReplace = " " * tabSize
@@ -34,6 +34,15 @@ class Document {
       i += 1
     }
     sb.toString()
+  }
+
+  def clear() {
+    lines.clear()
+    lines.append(new StringBuilder(""))
+    _x = 0
+    _y = 0
+    contentChanged(this)
+    caretChanged()
   }
 
   def x = _x
@@ -85,6 +94,7 @@ class Document {
 
   def prepare(str: String) = {
     str.replace("\t", tabReplace)
+    str.replace("\r", "")
   }
 
   /**

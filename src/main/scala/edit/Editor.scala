@@ -4,6 +4,8 @@ import input.KeyMap
 import javafx.scene.layout.StackPane
 import javafx.scene.input.{Clipboard, KeyCombination, KeyCode, KeyEvent}
 import javafx.event.EventHandler
+import java.io.File
+import io.Source
 
 class Editor(document: Document) extends StackPane {
 
@@ -62,8 +64,8 @@ class Editor(document: Document) extends StackPane {
       case KeyCode.BACK_SPACE => backspace()
       case KeyCode.LEFT => doc.x -= 1
       case KeyCode.RIGHT => doc.x += 1
-      case KeyCode.UP => doc.y -= 1
-      case KeyCode.DOWN => doc.y += 1
+      case KeyCode.UP => doc.y -= 1; view.followCaret()
+      case KeyCode.DOWN => doc.y += 1; view.followCaret()
       case KeyCode.HOME => home()
       case KeyCode.END => end()
       case KeyCode.TAB => doc.insert('\t')
@@ -91,13 +93,22 @@ class Editor(document: Document) extends StackPane {
     view.init()
   }
 
+  def load(file: File) {
+    doc.clear()
+    val source = Source.fromFile(file)
+    doc.insert(source.mkString)
+    source.close()
+    doc.x = 0
+    doc.y = 0
+  }
+
   setOnKeyTyped(Events.eventHandler(onKeyTyped))
   setOnKeyReleased(Events.eventHandler(onKeyReleased))
   setOnKeyPressed(Events.eventHandler(onKeyPressed))
   getChildren.add(view)
   registerActions()
 
-  view.scrollPane.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler[KeyEvent]() {
+  view.scrollpane.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler[KeyEvent]() {
     def handle(e: KeyEvent) {
 
       if (e.getEventType == KeyEvent.KEY_PRESSED){

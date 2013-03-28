@@ -44,7 +44,7 @@ class DocumentView(document: Document) extends StackPane {
   val textpane = new VBox()
   protected val backgroundPane = new Pane()
   protected val foregroundPane = new Pane()
-  val scrollPane = new ScrollPane()
+  val scrollpane = new ScrollPane()
   protected val caret = createCaret()
 
   protected var charWidth = 0.0
@@ -58,6 +58,9 @@ class DocumentView(document: Document) extends StackPane {
 
   protected var currentLine: Line = null
   protected var previousLineNr = -1
+
+  var caretLayoutX = 0.0
+  var caretLayoutY = 0.0
 
   /**
    * This offset should be retrieved from the stylesheet, which as of JavaFX 2.2 is NOT possible...
@@ -109,19 +112,53 @@ class DocumentView(document: Document) extends StackPane {
   }
 
   def updateCaret() {
-    val xOffset = caretOffsetX + scrollPane.getHvalue * (textpane.getWidth - scrollPane.getWidth)
-    val yOffset = (-1) * scrollPane.getVvalue * (textpane.getHeight - scrollPane.getHeight)
+    val xOffset = caretOffsetX + getScrollLeft
+    val yOffset = (-1) * getScrollTop
 
     if (doc.y < textpane.getChildren.size()) {
       val curText = textpane.getChildren.get(doc.y)
       val height = curText.getBoundsInParent.getMinY
-      setCaretPosition(xOffset + doc.x * charWidth, yOffset + height)
+      caretLayoutX = xOffset + doc.x * charWidth
+      caretLayoutY = yOffset + height
+      setCaretPosition(caretLayoutX, caretLayoutY)
     }
 
     if (previousLineNr != doc.y) {
       if (setCurrentLine(doc.y)) {
         previousLineNr = doc.y
       }
+    }
+  }
+
+
+  def getScrollTop = {
+    scrollpane.getVvalue * (textpane.getHeight - scrollpane.getHeight)
+  }
+
+  def getScrollLeft = {
+    scrollpane.getHvalue * (textpane.getWidth - scrollpane.getWidth)
+  }
+
+  def scrollTop(pixel: Double) {
+    val v = math.max(0.0, math.min(1.0, pixel / (textpane.getHeight - scrollpane.getHeight)))
+    scrollpane.setVvalue(v)
+  }
+
+  def scrollLeft(pixel: Double) {
+    scrollpane.setHvalue(pixel / (textpane.getWidth - scrollpane.getWidth))
+  }
+
+  /**
+   * Scrolls the view so that the caret is visible
+   */
+  def followCaret() {
+    val caretX = caretLayoutX
+    val caretY = caretLayoutY + getScrollTop
+
+    if (caretY + charHeight * 2 > getScrollTop + scrollpane.getHeight) {
+      scrollTop(getScrollTop + charHeight)
+    } else if (caretY - charHeight < getScrollTop) {
+      scrollTop(getScrollTop - charHeight)
     }
   }
 
@@ -155,14 +192,14 @@ class DocumentView(document: Document) extends StackPane {
     setAlignment(Pos.TOP_LEFT)
 
     textpane.getStyleClass.add("textpane")
-    scrollPane.setContent(textpane)
-    scrollPane.getStyleClass.add("scrollpane")
-    scrollPane.setFitToWidth(true)
-    scrollPane.setFitToHeight(true)
-    scrollPane.hvalueProperty().addListener(scrollListener)
-    scrollPane.vvalueProperty().addListener(scrollListener)
+    scrollpane.setContent(textpane)
+    scrollpane.getStyleClass.add("scrollpane")
+    scrollpane.setFitToWidth(true)
+    scrollpane.setFitToHeight(true)
+    scrollpane.hvalueProperty().addListener(scrollListener)
+    scrollpane.vvalueProperty().addListener(scrollListener)
 
-    getChildren.add(scrollPane)
+    getChildren.add(scrollpane)
     textpane.getStyleClass.add("editor")
 
     getChildren.add(caret)
