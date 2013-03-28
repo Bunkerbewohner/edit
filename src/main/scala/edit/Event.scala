@@ -19,6 +19,8 @@ class Event[T] {
 
   val listeners = new scala.collection.mutable.ListBuffer[EventHandler]()
 
+  var mute = false
+
   def +=(h: EventHandler) {
     listeners.append(h)
   }
@@ -28,6 +30,6 @@ class Event[T] {
   }
 
   def apply(arg: T) {
-    listeners.foreach(l => l(arg))
+    if (!mute) listeners.foreach(l => l(arg))
   }
 }

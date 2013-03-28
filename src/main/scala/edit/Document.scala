@@ -61,7 +61,20 @@ class Document {
    * @param str Any string
    */
   def insert(str: String) {
+    // disable event listeners
+    contentChanged.mute = true
+    caretChanged.mute = true
+
+    // perform all the changes without notifying anyone
     str.foreach(c => insert(c))
+
+    // reenable event listeners
+    contentChanged.mute = false
+    caretChanged.mute = false
+
+    // tell everyone that something's changed
+    contentChanged(this)
+    caretChanged()
   }
 
   /**

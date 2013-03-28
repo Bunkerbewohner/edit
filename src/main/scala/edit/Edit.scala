@@ -23,6 +23,7 @@ class Edit extends Application {
     root.getChildren.add(editor)
 
     val scene = new Scene(root)
+    scene.getStylesheets.add("file:resources/styles/default.css")
     stage.setScene(scene)
 
     stage.show()

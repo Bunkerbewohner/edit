@@ -1,7 +1,8 @@
 package edit
 
+import input.KeyMap
 import javafx.scene.layout.StackPane
-import javafx.scene.input.{KeyCode, KeyEvent}
+import javafx.scene.input.{Clipboard, KeyCombination, KeyCode, KeyEvent}
 
 class Editor(document: Document) extends StackPane {
 
@@ -41,7 +42,8 @@ class Editor(document: Document) extends StackPane {
   }
 
   def onKeyTyped(e: KeyEvent) {
-    if (!e.getCharacter.trim().isEmpty) {
+    // check for printable chars (127 = DELETE)
+    if (!e.getCharacter.trim().isEmpty && e.getCharacter.codePointAt(0) != 127) {
       val char = e.getCharacter()(0)
       doc.insert(char)
     } else if (e.getCharacter.codePointAt(0) == 32) {
@@ -50,9 +52,7 @@ class Editor(document: Document) extends StackPane {
   }
 
   def onKeyReleased(e: KeyEvent) {
-    e.getCode match {
-      case _ => // do nothing
-    }
+    KeyMap.handleKeyReleased(e)
   }
 
   def onKeyPressed(e: KeyEvent) {
@@ -71,8 +71,24 @@ class Editor(document: Document) extends StackPane {
     }
   }
 
+  def registerActions() {
+    val actions = scala.collection.Map[KeyCombination, (KeyEvent) => Unit](
+      KeyCombination.keyCombination("Ctrl+V") -> (e => paste())
+    )
+
+    actions.foreach(a => KeyMap(a._1) = a._2)
+  }
+
+  def paste() {
+    val clipboard = Clipboard.getSystemClipboard
+    if (clipboard.hasString) {
+      document.insert(clipboard.getString)
+    }
+  }
+
   setOnKeyTyped(Events.eventHandler(onKeyTyped))
   setOnKeyReleased(Events.eventHandler(onKeyReleased))
   setOnKeyPressed(Events.eventHandler(onKeyPressed))
   getChildren.add(view)
+  registerActions()
 }
