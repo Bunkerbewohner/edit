@@ -4,11 +4,16 @@
 }
 
 .textpane {
-    -fx-padding: 5px 0px 0px 5px;
+    -fx-padding: 5px 0px 0px 0px;
+}
+
+.caret {
+    -fx-fill: #d080d0;
 }
 
 .line {
     -fx-background-color: white;
+    -fx-padding: 0px 0px 0px 5px;
 }
 
 .line .text {
@@ -16,7 +21,7 @@
 }
 
 .line.current {
-    -fx-background-color: #ffffdd;
+    -fx-background-color: #ffddff;
 }
 
 .document-view {

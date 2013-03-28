@@ -86,6 +86,10 @@ class Editor(document: Document) extends StackPane {
     }
   }
 
+  def init() {
+    view.init()
+  }
+
   setOnKeyTyped(Events.eventHandler(onKeyTyped))
   setOnKeyReleased(Events.eventHandler(onKeyReleased))
   setOnKeyPressed(Events.eventHandler(onKeyPressed))

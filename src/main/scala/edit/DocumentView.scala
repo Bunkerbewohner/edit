@@ -59,6 +59,12 @@ class DocumentView(document: Document) extends StackPane {
   protected var currentLine: Line = null
   protected var previousLineNr = -1
 
+  /**
+   * This offset should be retrieved from the stylesheet, which as of JavaFX 2.2 is NOT possible...
+   * @return offset of the caret in pixels
+   */
+  def caretOffsetX = 5
+
   def fontFamily = _fontFamily
   def fontSize = _fontSize
 
@@ -103,7 +109,7 @@ class DocumentView(document: Document) extends StackPane {
   }
 
   def updateCaret() {
-    val xOffset = textpane.getPadding.getLeft - scrollPane.getHvalue * (textpane.getWidth - scrollPane.getWidth)
+    val xOffset = caretOffsetX + scrollPane.getHvalue * (textpane.getWidth - scrollPane.getWidth)
     val yOffset = (-1) * scrollPane.getVvalue * (textpane.getHeight - scrollPane.getHeight)
 
     if (doc.y < textpane.getChildren.size()) {
@@ -141,9 +147,6 @@ class DocumentView(document: Document) extends StackPane {
     fadeOut.setFromValue(1)
     fadeOut.setToValue(0)
 
-    doc.contentChanged += (doc => rebuild())
-    doc.caretChanged += (Unit => updateCaret())
-
     this.getStyleClass.add("document-view")
     backgroundPane.getStyleClass.add("background-pane")
     getChildren.add(backgroundPane)
@@ -163,14 +166,19 @@ class DocumentView(document: Document) extends StackPane {
     textpane.getStyleClass.add("editor")
 
     getChildren.add(caret)
+    caret.getStyleClass.add("caret")
     getStyleClass.add("foregroundPane")
+  }
 
-    computeCharSize()
-    rebuild()
-
+  def init() {
     doc.x = 0
     doc.y = 0
+    computeCharSize()
+    rebuild()
+    doc.contentChanged += (doc => rebuild())
+    doc.caretChanged += (Unit => updateCaret())
   }
+
 
   val scrollListener = new InvalidationListener {
     def invalidated(p1: Observable) {

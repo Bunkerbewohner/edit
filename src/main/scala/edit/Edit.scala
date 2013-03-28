@@ -27,6 +27,7 @@ class Edit extends Application {
     stage.setScene(scene)
 
     stage.show()
+    editor.init()
 
     editor.requestFocus()
   }
