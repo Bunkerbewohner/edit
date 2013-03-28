@@ -6,7 +6,7 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.paint.Paint
 import javafx.animation.FadeTransition
 import javafx.util.Duration
-import javafx.scene.input.{DragEvent, ScrollEvent, MouseEvent}
+import javafx.scene.input.{KeyEvent, DragEvent, ScrollEvent, MouseEvent}
 import scala.collection.JavaConversions._
 import javafx.geometry.Pos
 import javafx.scene.control.ScrollPane
@@ -41,10 +41,10 @@ class DocumentView(document: Document) extends StackPane {
   }
 
   protected var doc: Document = document
-  protected val textpane = new VBox()
+  val textpane = new VBox()
   protected val backgroundPane = new Pane()
   protected val foregroundPane = new Pane()
-  protected val scrollPane = new ScrollPane()
+  val scrollPane = new ScrollPane()
   protected val caret = createCaret()
 
   protected var charWidth = 0.0

@@ -3,6 +3,7 @@ package edit
 import input.KeyMap
 import javafx.scene.layout.StackPane
 import javafx.scene.input.{Clipboard, KeyCombination, KeyCode, KeyEvent}
+import javafx.event.EventHandler
 
 class Editor(document: Document) extends StackPane {
 
@@ -47,7 +48,7 @@ class Editor(document: Document) extends StackPane {
       val char = e.getCharacter()(0)
       doc.insert(char)
     } else if (e.getCharacter.codePointAt(0) == 32) {
-      doc.insert(" ")
+      doc.insert(' ')
     }
   }
 
@@ -65,8 +66,8 @@ class Editor(document: Document) extends StackPane {
       case KeyCode.DOWN => doc.y += 1
       case KeyCode.HOME => home()
       case KeyCode.END => end()
-      case KeyCode.TAB => doc.insert("\t")
-      case KeyCode.ENTER => doc.insert("\n")
+      case KeyCode.TAB => doc.insert('\t')
+      case KeyCode.ENTER => doc.insert('\n')
       case _ => // do nothing
     }
   }
@@ -95,4 +96,18 @@ class Editor(document: Document) extends StackPane {
   setOnKeyPressed(Events.eventHandler(onKeyPressed))
   getChildren.add(view)
   registerActions()
+
+  view.scrollPane.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler[KeyEvent]() {
+    def handle(e: KeyEvent) {
+
+      if (e.getEventType == KeyEvent.KEY_PRESSED){
+        // Consume Event before Bubbling Phase, -> otherwise Scrollpane scrolls
+        if ( e.getCode == KeyCode.SPACE ){
+          // but tell the editor
+          onKeyPressed(e)
+          e.consume()
+        }
+      }
+    }
+  })
 }

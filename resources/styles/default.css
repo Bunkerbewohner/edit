@@ -1,6 +1,7 @@
 
 .editor {
     -fx-background-color: white;
+    -fx-background-color: #555;
 }
 
 .textpane {
@@ -13,21 +14,20 @@
 
 .line {
     -fx-background-color: white;
+    -fx-background-color: #555;
     -fx-padding: 0px 0px 0px 5px;
 }
 
 .line .text {
-    -fx-fill: black;
+    -fx-fill: #eee;
+    -fx-font-smoothing-type: lcd;
 }
 
 .line.current {
     -fx-background-color: #ffddff;
+    -fx-background-color: #777;
 }
 
-.document-view {
-    -fx-background-color: white;
-}
-
-.document-view .scrollpane {
-    -fx-background-color: white;
+.scrollpane {
+    -fx-background-color: #555;
 }

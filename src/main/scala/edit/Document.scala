@@ -5,6 +5,7 @@ import collection.mutable.ArrayBuffer
 class Document {
 
   var tabSize = 4
+  var tabReplace = " " * tabSize
 
   val contentChanged = new Event[Document]()
   val caretChanged = new Event[Unit]()
@@ -56,25 +57,34 @@ class Document {
     }
   }
 
-  /**
-   * Inserts a string at the current caret position.
-   * @param str Any string
-   */
   def insert(str: String) {
-    // disable event listeners
-    contentChanged.mute = true
-    caretChanged.mute = true
+    if (str.length == 0) return
+    val strLines = str.split('\n')
+    var i = 0
 
-    // perform all the changes without notifying anyone
-    str.foreach(c => insert(c))
+    while (i < strLines.length) {
+      if (i > 0) linebreak()
 
-    // reenable event listeners
-    contentChanged.mute = false
-    caretChanged.mute = false
+      if (strLines(i).length > 0) {
+        val text = prepare(strLines(i))
 
-    // tell everyone that something's changed
+        if (x < lines(y).length) {
+          lines(y).insert(x, text)
+        } else {
+          lines(y).append(text)
+        }
+        _x += text.length
+      }
+
+      i += 1
+    }
+
     contentChanged(this)
-    caretChanged()
+    x = strLines(i - 1).length
+  }
+
+  def prepare(str: String) = {
+    str.replace("\t", tabReplace)
   }
 
   /**
@@ -85,8 +95,7 @@ class Document {
     if (char == '\n') {
       linebreak()
     } else if (char == '\t') {
-      lines(y).insert(x, " " * tabSize)
-      x += tabSize
+      insert(tabReplace)
     } else {
       lines(y).insert(x, char)
       x += 1
@@ -129,12 +138,16 @@ class Document {
    * rest content of the line will be moved to the newly created next line.
    */
   protected def linebreak() {
-    val rest = lines(y).substring(x)
-    lines(y).delete(x, lines(y).length)
-    lines.insert(y + 1, new StringBuilder())
-    x = 0; y += 1
-    insert(rest)
-    x = 0
+    val rest = lines(_y).substring(x)
+    val restEmpty = rest.isEmpty
+
+    if (!restEmpty) lines(_y).delete(x, lines(_y).length)
+
+    lines.insert(_y + 1, new StringBuilder())
+    _x = 0; _y += 1
+
+    if (!restEmpty) insert(rest)
+    _x = 0
   }
 
 }
