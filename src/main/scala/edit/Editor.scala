@@ -52,6 +52,8 @@ class Editor(document: Document) extends StackPane {
     } else if (e.getCharacter.codePointAt(0) == 32) {
       doc.insert(' ')
     }
+
+    view.followCaret()
   }
 
   def onKeyReleased(e: KeyEvent) {
@@ -64,14 +66,16 @@ class Editor(document: Document) extends StackPane {
       case KeyCode.BACK_SPACE => backspace()
       case KeyCode.LEFT => doc.x -= 1
       case KeyCode.RIGHT => doc.x += 1
-      case KeyCode.UP => doc.y -= 1; view.followCaret()
-      case KeyCode.DOWN => doc.y += 1; view.followCaret()
+      case KeyCode.UP => doc.y -= 1
+      case KeyCode.DOWN => doc.y += 1
       case KeyCode.HOME => home()
       case KeyCode.END => end()
       case KeyCode.TAB => doc.insert('\t')
       case KeyCode.ENTER => doc.insert('\n')
       case _ => // do nothing
     }
+
+    view.followCaret()
   }
 
   def registerActions() {

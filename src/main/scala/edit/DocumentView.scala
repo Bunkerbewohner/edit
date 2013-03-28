@@ -112,7 +112,7 @@ class DocumentView(document: Document) extends StackPane {
   }
 
   def updateCaret() {
-    val xOffset = caretOffsetX + getScrollLeft
+    val xOffset = caretOffsetX - getScrollLeft
     val yOffset = (-1) * getScrollTop
 
     if (doc.y < textpane.getChildren.size()) {
@@ -132,33 +132,58 @@ class DocumentView(document: Document) extends StackPane {
 
 
   def getScrollTop = {
-    scrollpane.getVvalue * (textpane.getHeight - scrollpane.getHeight)
+    scrollpane.getVvalue * (textpane.getHeight - scrollpane.getViewportBounds.getHeight)
   }
 
   def getScrollLeft = {
-    scrollpane.getHvalue * (textpane.getWidth - scrollpane.getWidth)
+    scrollpane.getHvalue * (textpane.getWidth - scrollpane.getViewportBounds.getWidth)
   }
 
-  def scrollTop(pixel: Double) {
-    val v = math.max(0.0, math.min(1.0, pixel / (textpane.getHeight - scrollpane.getHeight)))
+  def setScrollTop(pixel: Double) {
+    val h = textpane.getHeight - scrollpane.getViewportBounds.getHeight
+    if (h == 0) {
+      scrollpane.setVvalue(0)
+      return
+    }
+    val v = math.max(0.0, math.min(1.0, pixel / h))
     scrollpane.setVvalue(v)
   }
 
-  def scrollLeft(pixel: Double) {
-    scrollpane.setHvalue(pixel / (textpane.getWidth - scrollpane.getWidth))
+  def setScrollLeft(pixel: Double) {
+    val w = textpane.getWidth - scrollpane.getViewportBounds.getWidth
+    if (w == 0) {
+      scrollpane.setHvalue(0)
+      return
+    }
+    val v = math.max(0.0, math.min(1.0, pixel / w))
+    scrollpane.setHvalue(v)
   }
 
   /**
    * Scrolls the view so that the caret is visible
    */
   def followCaret() {
-    val caretX = caretLayoutX
+    val caretX = caretLayoutX + getScrollLeft
     val caretY = caretLayoutY + getScrollTop
+    val topDiff = getScrollTop - (caretY - charHeight)
+    val bottomDiff = caretY + charHeight * 2 - (getScrollTop + scrollpane.getViewportBounds.getHeight)
+    val leftDiff = getScrollLeft - (caretX - charWidth * 2)
+    val rightDiff = caretX + charWidth * 3 - (getScrollLeft + scrollpane.getViewportBounds.getWidth)
 
-    if (caretY + charHeight * 2 > getScrollTop + scrollpane.getHeight) {
-      scrollTop(getScrollTop + charHeight)
-    } else if (caretY - charHeight < getScrollTop) {
-      scrollTop(getScrollTop - charHeight)
+    if (bottomDiff > 0 && bottomDiff > topDiff) {
+      val h = math.ceil(bottomDiff / charHeight) * charHeight
+      setScrollTop(getScrollTop + h)
+    } else if (topDiff > 0) {
+      val h = math.ceil(topDiff / charHeight) * charHeight
+      setScrollTop(getScrollTop - h)
+    }
+
+    if (leftDiff > 0 && leftDiff > rightDiff) {
+      val w = math.ceil(leftDiff / charWidth) * charWidth
+      setScrollLeft(getScrollLeft - w)
+    } else if (rightDiff > 0) {
+      val w = math.ceil(rightDiff / charWidth) * charWidth
+      setScrollLeft(getScrollLeft + w)
     }
   }
 
