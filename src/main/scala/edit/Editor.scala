@@ -4,7 +4,7 @@ import input.KeyMap
 import javafx.scene.layout.StackPane
 import javafx.scene.input.{Clipboard, KeyCombination, KeyCode, KeyEvent}
 import javafx.event.EventHandler
-import java.io.File
+import java.io.{FileWriter, File}
 import io.Source
 import javafx.stage.FileChooser
 
@@ -12,6 +12,7 @@ class Editor(document: Document) extends StackPane {
 
   val doc = document
   val view = new DocumentView(doc)
+  var openedFile = Option.empty[File]
 
   def home() {
     if (doc.x == 0 && doc.currentLine.length > 1) {
@@ -82,7 +83,9 @@ class Editor(document: Document) extends StackPane {
   def registerActions() {
     val actions = scala.collection.Map[KeyCombination, (KeyEvent) => Unit](
       KeyCombination.keyCombination("Ctrl+V") -> (e => paste()),
-      KeyCombination.keyCombination("Ctrl+O") -> (e => openFileDialog())
+      KeyCombination.keyCombination("Ctrl+O") -> (e => openFileDialog()),
+      KeyCombination.keyCombination("Ctrl+S") -> (e => saveFileDialog()),
+      KeyCombination.keyCombination("Ctrl+N") -> (e => newFile())
     )
 
     actions.foreach(a => KeyMap(a._1) = a._2)
@@ -110,6 +113,12 @@ class Editor(document: Document) extends StackPane {
     Edit.stage.setTitle(s"edit '${file.getName}'")
   }
 
+  def newFile() {
+    doc.clear()
+    openedFile = None
+    Edit.stage.setTitle("edit")
+  }
+
   def openFileDialog() {
     val chooser = new FileChooser()
     chooser.setTitle("Open file")
@@ -117,6 +126,27 @@ class Editor(document: Document) extends StackPane {
 
     if (file != null && file.exists()) {
       load(file)
+      openedFile = Some(file)
+    }
+  }
+
+  def saveFileDialog() {
+    val file = openedFile.getOrElse({
+      val chooser = new FileChooser
+      chooser.setTitle("Save file")
+      chooser.showSaveDialog(null)
+    })
+
+    if (file != null) {
+      val writer = new FileWriter(file)
+      try {
+        writer.write(doc.text("\n"))
+        Edit.stage.setTitle(s"edit '${file.getName}'")
+      } finally {
+        writer.close()
+      }
+
+      // TODO: notify about successful save operation
     }
   }
 
