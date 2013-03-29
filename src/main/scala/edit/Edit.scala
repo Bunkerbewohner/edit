@@ -9,6 +9,7 @@ import java.io.File
 
 class Edit extends Application {
   def start(stage: Stage) {
+    Edit.stage = stage
 
     val defaultFont = Font.loadFont("file:resources/fonts/Inconsolata.otf", 14)
 
@@ -39,6 +40,9 @@ class Edit extends Application {
 }
 
 object Edit {
+
+  var stage: Stage = null
+
   def main(args: Array[String]) {
     Application.launch(classOf[Edit], args: _*)
   }

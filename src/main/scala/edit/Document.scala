@@ -89,12 +89,11 @@ class Document() {
     }
 
     contentChanged(this)
-    x = strLines(i - 1).length
   }
 
   def prepare(str: String) = {
-    str.replace("\t", tabReplace)
-    str.replace("\r", "")
+    var temp = str.replace("\t", tabReplace)
+    temp.replace("\r", "")
   }
 
   /**

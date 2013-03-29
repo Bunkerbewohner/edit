@@ -6,6 +6,7 @@ import javafx.scene.input.{Clipboard, KeyCombination, KeyCode, KeyEvent}
 import javafx.event.EventHandler
 import java.io.File
 import io.Source
+import javafx.stage.FileChooser
 
 class Editor(document: Document) extends StackPane {
 
@@ -70,7 +71,7 @@ class Editor(document: Document) extends StackPane {
       case KeyCode.DOWN => doc.y += 1
       case KeyCode.HOME => home()
       case KeyCode.END => end()
-      case KeyCode.TAB => doc.insert('\t')
+      case KeyCode.TAB => doc.insert("\t")
       case KeyCode.ENTER => doc.insert('\n')
       case _ => // do nothing
     }
@@ -80,7 +81,8 @@ class Editor(document: Document) extends StackPane {
 
   def registerActions() {
     val actions = scala.collection.Map[KeyCombination, (KeyEvent) => Unit](
-      KeyCombination.keyCombination("Ctrl+V") -> (e => paste())
+      KeyCombination.keyCombination("Ctrl+V") -> (e => paste()),
+      KeyCombination.keyCombination("Ctrl+O") -> (e => openFileDialog())
     )
 
     actions.foreach(a => KeyMap(a._1) = a._2)
@@ -104,6 +106,18 @@ class Editor(document: Document) extends StackPane {
     source.close()
     doc.x = 0
     doc.y = 0
+
+    Edit.stage.setTitle(s"edit '${file.getName}'")
+  }
+
+  def openFileDialog() {
+    val chooser = new FileChooser()
+    chooser.setTitle("Open file")
+    val file = chooser.showOpenDialog(null)
+
+    if (file != null && file.exists()) {
+      load(file)
+    }
   }
 
   setOnKeyTyped(Events.eventHandler(onKeyTyped))
