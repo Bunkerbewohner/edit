@@ -6,8 +6,11 @@ import javafx.scene.Scene
 import javafx.scene.layout.StackPane
 import javafx.scene.text.Font
 import java.io.File
+import main.java.edit.EditInterface
+import main.scala.edit.plugins.PluginManager
 
 class Edit extends Application {
+
   def start(stage: Stage) {
     Edit.stage = stage
 
@@ -36,12 +39,26 @@ class Edit extends Application {
     }
 
     editor.requestFocus()
+
+    val interface = new EditInterface {
+      def openFile(path: String) {
+        editor.load(new File(path))
+      }
+
+      def setWindowTitle(title: String) {
+        stage.setTitle(title)
+      }
+    }
+
+    Edit.interface = interface
+    PluginManager.loadPlugins("resources/plugins")
   }
 }
 
 object Edit {
 
   var stage: Stage = null
+  var interface: EditInterface = null
 
   def main(args: Array[String]) {
     Application.launch(classOf[Edit], args: _*)
