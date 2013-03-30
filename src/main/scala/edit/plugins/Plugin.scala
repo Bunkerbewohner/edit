@@ -1,4 +1,4 @@
-package main.scala.edit.plugins
+package edit.plugins
 
 import edit.Edit
 import org.python.util.PythonInterpreter

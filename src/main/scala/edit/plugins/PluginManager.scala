@@ -1,6 +1,7 @@
-package main.scala.edit.plugins
+package edit.plugins
 
 import java.io.File
+import java.util.concurrent.FutureTask
 
 object PluginManager {
 
@@ -14,6 +15,14 @@ object PluginManager {
 
   def loadPlugins(directory: String) {
     val plugins = listPlugins(directory)
-    plugins.foreach(p => p.load())
+    plugins.foreach(p =>  {
+      val thread = new Thread(new Runnable() {
+        def run() {
+          p.load()
+        }
+      })
+
+      thread.start()
+    })
   }
 }

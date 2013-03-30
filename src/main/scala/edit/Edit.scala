@@ -6,8 +6,7 @@ import javafx.scene.Scene
 import javafx.scene.layout.StackPane
 import javafx.scene.text.Font
 import java.io.File
-import main.java.edit.EditInterface
-import main.scala.edit.plugins.PluginManager
+import edit.plugins.PluginManager
 
 class Edit extends Application {
 
@@ -16,7 +15,7 @@ class Edit extends Application {
 
     val defaultFont = Font.loadFont("file:resources/fonts/Inconsolata.otf", 14)
 
-    stage.setTitle("edit")
+    stage.setTitle("edit (loading...)")
     stage.setWidth(800)
     stage.setHeight(600)
 
@@ -40,7 +39,7 @@ class Edit extends Application {
 
     editor.requestFocus()
 
-    val interface = new EditInterface {
+    val interface = new edit.interfaces.Edit {
       def openFile(path: String) {
         editor.load(new File(path))
       }
@@ -48,6 +47,8 @@ class Edit extends Application {
       def setWindowTitle(title: String) {
         stage.setTitle(title)
       }
+
+      def getDocument = doc
     }
 
     Edit.interface = interface
@@ -58,7 +59,7 @@ class Edit extends Application {
 object Edit {
 
   var stage: Stage = null
-  var interface: EditInterface = null
+  var interface: edit.interfaces.Edit = null
 
   def main(args: Array[String]) {
     Application.launch(classOf[Edit], args: _*)

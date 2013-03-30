@@ -1,8 +1,10 @@
 package edit
 
 import collection.mutable.ArrayBuffer
+import interfaces.{LineTag, Line}
+import javafx.application.Platform
 
-class Document() {
+class Document() extends edit.interfaces.Document {
 
   var tabSize = 4
   var tabReplace = " " * tabSize
@@ -159,4 +161,54 @@ class Document() {
     _x = 0
   }
 
+  /* ================ INTERFACE =================================== */
+
+  val tags = scala.collection.mutable.Map[Int, ArrayBuffer[LineTag]]()
+
+  case class Line(content: String, number: Int) extends edit.interfaces.Line {
+    def getContent = content
+    def getNumber = number
+    def setContent(content: String) {
+      lines(number).clear()
+      lines(number).append(content)
+      Platform.runLater(new Runnable() {
+        def run() {
+          contentChanged(null)
+        }
+      })
+    }
+
+    def insertContent(content: String, insertPosition: Int) {
+      Platform.runLater(new Runnable() {
+        def run() {
+          val oldX = x
+          val oldY = y
+
+          y = number
+          x = insertPosition
+
+          insert(content)
+        }
+      })
+    }
+  }
+
+  def getCurrentLine = Line(currentLine.toString(), y)
+
+  def getLines: Array[edit.interfaces.Line] = {
+    lines.zipWithIndex.map({
+      case (line: StringBuilder, i: Int) => Line(line.toString(), i)
+    }).toArray[edit.interfaces.Line]
+  }
+
+  def getLineCount = lines.length
+
+  def getLineTags(lineNumber: Int) = {
+    tags.getOrElseUpdate(lineNumber, ArrayBuffer[LineTag]()).toArray
+  }
+
+  def addLineTag(tag: LineTag) {
+    val entries = tags.getOrElseUpdate(tag.getLineNumber, ArrayBuffer[LineTag]())
+    entries.append(tag)
+  }
 }
