@@ -110,7 +110,8 @@ class Editor(document: Document) extends StackPane {
     doc.x = 0
     doc.y = 0
 
-    Edit.stage.setTitle(s"edit '${file.getName}'")
+    Signals << DocumentOpened(doc)
+    Signals << SetWindowTitle(s"edit '${file.getName}'")
   }
 
   def newFile() {

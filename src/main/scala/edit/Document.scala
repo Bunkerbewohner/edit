@@ -3,6 +3,7 @@ package edit
 import collection.mutable.ArrayBuffer
 import interfaces.{LineTag, Line}
 import javafx.application.Platform
+import edit.util.JavaFX._
 
 class Document() extends edit.interfaces.Document {
 
@@ -190,6 +191,22 @@ class Document() extends edit.interfaces.Document {
           insert(content)
         }
       })
+    }
+
+    def appendContent(content: String) {
+      runLater(() => {
+        x = currentLine.length
+        insert(content)
+        x -= content.length
+      })
+    }
+
+    def addTag(tag: LineTag) {
+      tags.getOrElseUpdate(tag.getLineNumber, ArrayBuffer[LineTag]()).append(tag)
+    }
+
+    def getTags = {
+      tags.getOrElseUpdate(number, ArrayBuffer[LineTag]()).toArray
     }
   }
 
