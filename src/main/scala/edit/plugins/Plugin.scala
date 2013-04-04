@@ -1,6 +1,6 @@
 package edit.plugins
 
-import edit.Edit
+import edit.{Signals, Edit}
 import org.python.util.PythonInterpreter
 import java.io.File
 

@@ -11,7 +11,7 @@ import edit.plugins.PluginManager
 class Edit extends Application {
 
   def onClosing(e: WindowEvent) {
-    Signals << KillReceptor()
+    Signals << Shutdown()
   }
 
   def start(stage: Stage) {
@@ -47,6 +47,10 @@ class Edit extends Application {
     val interface = new edit.interfaces.Edit with Receptor {
       def openFile(path: String) {
         editor.load(new File(path))
+      }
+
+      def __lshift__(signal: Signal) {
+        Signals << signal
       }
 
       def setWindowTitle(title: String) {
@@ -93,3 +97,4 @@ object Edit {
 case class SetWindowTitle(title: String) extends Signal
 case class OpenDocument(path: String) extends Signal
 case class DocumentOpened(doc: Document) extends Signal
+case class Shutdown() extends Signal

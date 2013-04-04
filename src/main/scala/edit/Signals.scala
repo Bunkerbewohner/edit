@@ -42,9 +42,8 @@ trait Receptor {
     if (signal == null) return
 
     signal match {
-      case KillReceptor() => {
-        alive = false
-      }
+      case KillReceptor() => alive = false
+      case Shutdown() => alive = false
       case s: Signal => receive(s)
     }
   }
@@ -59,7 +58,7 @@ trait Receptor {
 
   protected def receive(signal: Signal)
 
-  Signals.addReceptor(this, classOf[KillReceptor])
+  Signals.addReceptor(this, List(classOf[Shutdown], classOf[KillReceptor]))
 }
 
 trait Signal extends Comparable[Signal] {
