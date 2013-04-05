@@ -12,6 +12,7 @@ class Document() extends edit.interfaces.Document {
 
   val contentChanged = new Event[Document]()
   val caretChanged = new Event[Unit]()
+  val selectionChanged = new Event[List[Selection]]()
 
   // caret position
   protected var _x = 0
@@ -23,6 +24,8 @@ class Document() extends edit.interfaces.Document {
   val lines = ArrayBuffer[StringBuilder](new StringBuilder(""))
 
   def currentLine = lines(y)
+
+  val selections = collection.mutable.ArrayBuffer[Selection]()
 
   /**
    * Returns the complete text separated by the specified line break delimiter.
@@ -229,3 +232,5 @@ class Document() extends edit.interfaces.Document {
     entries.append(tag)
   }
 }
+
+case class Selection(startRow: Int, startCol: Int, endRow: Int, endCol: Int)

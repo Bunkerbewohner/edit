@@ -12,6 +12,7 @@ import javafx.geometry.Pos
 import javafx.scene.control.ScrollPane
 import javafx.event.EventHandler
 import javafx.beans.{Observable, InvalidationListener}
+import javafx.scene.effect.BlendMode
 
 class DocumentView(document: Document) extends StackPane {
 
@@ -193,6 +194,25 @@ class DocumentView(document: Document) extends StackPane {
     })
   }
 
+  def highlightSelection(s: Selection) {
+    val numLines = s.endRow - s.startRow
+    if (numLines == 1) {
+      val rect = new Rectangle()
+      rect.getStyleClass.add("selection")
+      rect.setWidth((s.endCol - s.startCol) * charWidth)
+      rect.setHeight(charHeight)
+      rect.setX(s.startCol * charWidth)
+
+      foregroundPane.getChildren.add(rect)
+    }
+
+    // TODO: finish text selection
+  }
+
+  def highlightSelections() {
+    doc.selections.foreach(highlightSelection(_))
+  }
+
   def rebuild() {
     textpane.getChildren.clear()
     val lines = Range(0, doc.lines.length).map(i => new Line(doc.lines(i).toString(), i))
@@ -201,6 +221,10 @@ class DocumentView(document: Document) extends StackPane {
     textpane.layout()
     updateCaret()
     setCurrentLine(doc.y)
+
+    val selectionHighlights = foregroundPane.getChildren.filter(c => c.getStyleClass.contains("selection"))
+    foregroundPane.getChildren.removeAll(selectionHighlights)
+    highlightSelections()
   }
 
   def setup() {
@@ -229,7 +253,12 @@ class DocumentView(document: Document) extends StackPane {
 
     getChildren.add(caret)
     caret.getStyleClass.add("caret")
-    getStyleClass.add("foregroundPane")
+
+    foregroundPane.getStyleClass.add("foregroundPane")
+    foregroundPane.setFocusTraversable(false)
+    foregroundPane.setMouseTransparent(true)
+
+    getChildren.add(foregroundPane)
   }
 
   def init() {
