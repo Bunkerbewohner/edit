@@ -13,52 +13,18 @@ import javafx.scene.control.ScrollPane
 import javafx.event.EventHandler
 import javafx.beans.{Observable, InvalidationListener}
 import javafx.scene.effect.BlendMode
+import view.Textpane
 
 class DocumentView(document: Document) extends StackPane {
 
-  class Line(var text: String, var y: Int) extends VBox {
-
-    val textControl = new Text(text)
-    textControl.setStyle(getDefaultStyles)
-    textControl.setFont(Font.font(fontFamily, fontSize))
-    setOnMouseClicked(Events.eventHandler(onClick))
-
-    getStyleClass.add("line")
-    textControl.getStyleClass.add("text")
-    getChildren.add(textControl)
-    textControl.setId("textline-" + y)
-
-    def onClick(e: MouseEvent) {
-      doc.y = y
-      doc.x = (e.getX / charWidth).asInstanceOf[Int]
-
-      if (currentLine != null) {
-        currentLine.getStyleClass.remove("current")
-      }
-
-      getStyleClass.add("current")
-      currentLine = this
-    }
-  }
-
   protected var doc: Document = document
-  val textpane = new VBox()
+  protected val textpane = new Textpane(doc)
   protected val backgroundPane = new Pane()
   protected val foregroundPane = new Pane()
-  val scrollpane = new ScrollPane()
+  protected val scrollpane = new ScrollPane()
   protected val caret = createCaret()
 
-  protected var charWidth = 0.0
-  protected var charHeight = 0.0
-
-  protected var _fontFamily = "Inconsolata"
-  protected var _fontSize = 14
-
-  protected val fadeIn = new FadeTransition(Duration.millis(100))
-  protected val fadeOut = new FadeTransition(Duration.millis(100))
-
-  protected var currentLine: Line = null
-  protected var previousLineNr = -1
+  def getScrollpane = scrollpane
 
   var caretLayoutX = 0.0
   var caretLayoutY = 0.0
@@ -68,38 +34,6 @@ class DocumentView(document: Document) extends StackPane {
    * @return offset of the caret in pixels
    */
   def caretOffsetX = 5
-
-  def fontFamily = _fontFamily
-  def fontSize = _fontSize
-
-  def getDefaultStyles = {
-    s"-fx-font-family: '$fontFamily'; -fx-font-size: ${fontSize}px; -fx-font-smoothing-type: lcd; "
-  }
-
-  def setCurrentLine(lineNr: Int) = {
-    if (currentLine != null) {
-      currentLine.getStyleClass.remove("current")
-    }
-
-    if (textpane.getChildren.size() > doc.y) {
-      currentLine = textpane.getChildren.get(doc.y).asInstanceOf[Line]
-      currentLine.getStyleClass.add("current")
-      true
-    } else {
-      false
-    }
-  }
-
-  def computeCharSize() {
-    val text = new Text()
-    text.setFont(Font.font(fontFamily, fontSize))
-    text.setStyle(getDefaultStyles)
-    text.setText("a")
-    text.snapshot(null, null)
-    charHeight = text.getLayoutBounds.getHeight
-    charWidth = text.getLayoutBounds.getWidth
-    caret.setHeight(charHeight)
-  }
 
   def createCaret() = {
     val caret = new Rectangle()
@@ -116,21 +50,16 @@ class DocumentView(document: Document) extends StackPane {
     val xOffset = caretOffsetX - getScrollLeft
     val yOffset = (-1) * getScrollTop
 
-    if (doc.y < textpane.getChildren.size()) {
+    if (doc.y < textpane.numLines) {
       val curText = textpane.getChildren.get(doc.y)
       val height = curText.getBoundsInParent.getMinY
-      caretLayoutX = xOffset + doc.x * charWidth
+      caretLayoutX = xOffset + doc.x * textpane.charWidth
       caretLayoutY = yOffset + height
       setCaretPosition(caretLayoutX, caretLayoutY)
     }
 
-    if (previousLineNr != doc.y) {
-      if (setCurrentLine(doc.y)) {
-        previousLineNr = doc.y
-      }
-    }
+    caret.setHeight(textpane.textHeight)
   }
-
 
   def getScrollTop = {
     scrollpane.getVvalue * (textpane.getHeight - scrollpane.getViewportBounds.getHeight)
@@ -164,6 +93,8 @@ class DocumentView(document: Document) extends StackPane {
    * Scrolls the view so that the caret is visible
    */
   def followCaret() {
+    val charWidth = textpane.charWidth
+    val charHeight = textpane.textHeight
     val caretX = caretLayoutX + getScrollLeft
     val caretY = caretLayoutY + getScrollTop
     val topDiff = getScrollTop - (caretY - charHeight)
@@ -196,6 +127,9 @@ class DocumentView(document: Document) extends StackPane {
 
   def highlightSelection(s: Selection) {
     val numLines = s.endRow - s.startRow
+    val charWidth = textpane.charWidth
+    val charHeight = textpane.textHeight
+
     if (numLines == 1) {
       val rect = new Rectangle()
       rect.getStyleClass.add("selection")
@@ -214,62 +148,43 @@ class DocumentView(document: Document) extends StackPane {
   }
 
   def rebuild() {
-    textpane.getChildren.clear()
-    val lines = Range(0, doc.lines.length).map(i => new Line(doc.lines(i).toString(), i))
-    lines.foreach(l => textpane.getChildren.add(l))
-
+    textpane.rebuild()
     textpane.layout()
     updateCaret()
-    setCurrentLine(doc.y)
-
-    val selectionHighlights = foregroundPane.getChildren.filter(c => c.getStyleClass.contains("selection"))
-    foregroundPane.getChildren.removeAll(selectionHighlights)
-    highlightSelections()
   }
 
   def setup() {
-    fadeIn.setFromValue(0)
-    fadeIn.setToValue(1)
-    fadeOut.setFromValue(1)
-    fadeOut.setToValue(0)
+    getStyleClass.add("document-view")
+    setAlignment(Pos.TOP_LEFT)
 
-    this.getStyleClass.add("document-view")
     backgroundPane.getStyleClass.add("background-pane")
     getChildren.add(backgroundPane)
 
-    setStyle(getDefaultStyles)
-    setAlignment(Pos.TOP_LEFT)
-
-    textpane.getStyleClass.add("textpane")
     scrollpane.setContent(textpane)
     scrollpane.getStyleClass.add("scrollpane")
     scrollpane.setFitToWidth(true)
     scrollpane.setFitToHeight(true)
     scrollpane.hvalueProperty().addListener(scrollListener)
     scrollpane.vvalueProperty().addListener(scrollListener)
-
     getChildren.add(scrollpane)
-    textpane.getStyleClass.add("editor")
 
-    getChildren.add(caret)
     caret.getStyleClass.add("caret")
+    getChildren.add(caret)
 
     foregroundPane.getStyleClass.add("foregroundPane")
     foregroundPane.setFocusTraversable(false)
     foregroundPane.setMouseTransparent(true)
-
     getChildren.add(foregroundPane)
   }
 
   def init() {
     doc.x = 0
     doc.y = 0
-    computeCharSize()
     rebuild()
     doc.contentChanged += (doc => rebuild())
     doc.caretChanged += (Unit => updateCaret())
+    textpane.init()
   }
-
 
   val scrollListener = new InvalidationListener {
     def invalidated(p1: Observable) {

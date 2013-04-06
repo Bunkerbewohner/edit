@@ -67,7 +67,7 @@ class Document() extends edit.interfaces.Document {
     val temp = math.max(0, math.min(lines.length - 1, i))
     if (temp != _y) {
       _y = temp
-      x = math.min(lines(y).length, x)
+      _x = math.min(lines(y).length, x)
       caretChanged()
     }
   }

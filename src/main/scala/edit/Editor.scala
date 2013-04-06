@@ -157,7 +157,7 @@ class Editor(document: Document) extends StackPane {
   getChildren.add(view)
   registerActions()
 
-  view.scrollpane.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler[KeyEvent]() {
+  view.getScrollpane.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler[KeyEvent]() {
     def handle(e: KeyEvent) {
 
       if (e.getEventType == KeyEvent.KEY_PRESSED){
