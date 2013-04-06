@@ -5,7 +5,7 @@ import edit.{Receptor, Signal, Signals}
 
 abstract class SyntaxHighlighter(val doc: Document) {
 
-  def getStylesheet: String = "style.css"
+  def getStyleClass: String
 
   def annotateLine(lineNumber: Int, text: String): Array[AnnotatedFragment]
 

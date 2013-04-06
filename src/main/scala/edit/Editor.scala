@@ -7,12 +7,27 @@ import javafx.event.EventHandler
 import java.io.{FileWriter, File}
 import io.Source
 import javafx.stage.FileChooser
+import view.SyntaxHighlighters
 
 class Editor(document: Document) extends StackPane {
 
   val doc = document
   val view = new DocumentView(doc)
   var openedFile = Option.empty[File]
+
+  val receptor = new Receptor {
+    protected def receive(signal: Signal) {
+      signal match {
+        case UseSyntaxHighlighting(ext) => {
+          val factory = SyntaxHighlighters.highlighters(ext)
+          val highlighter = factory.createSyntaxHighlighter(doc)
+          view.getTextpane.setSyntaxHighlighter(highlighter)
+        }
+      }
+    }
+
+    Signals.addReceptor(this, classOf[UseSyntaxHighlighting])
+  }
 
   def home() {
     if (doc.x == 0 && doc.currentLine.length > 1) {
@@ -100,6 +115,7 @@ class Editor(document: Document) extends StackPane {
 
   def init() {
     view.init()
+    receptor.reactLoopAsync()
   }
 
   def load(file: File) {
@@ -171,3 +187,5 @@ class Editor(document: Document) extends StackPane {
     }
   })
 }
+
+case class UseSyntaxHighlighting(fileExt: String) extends Signal

@@ -4,6 +4,8 @@ import javafx.scene.layout.{HBox, VBox}
 import javafx.scene.text.{TextBuilder, Font, Text}
 import edit.{Document, Events}
 import javafx.scene.input.MouseEvent
+import javafx.application.Platform
+import edit.util.JavaFX
 
 class Textpane(doc: Document) extends VBox {
 
@@ -33,16 +35,18 @@ class Textpane(doc: Document) extends VBox {
   def textHeight = _charHeight
   def numLines = _lines.length
 
-  def syntaxHighlighter_=(sh: SyntaxHighlighter) {
+  def setSyntaxHighlighter(sh: SyntaxHighlighter) {
+    _syntaxHighlighter.foreach(h => getStyleClass.remove(h.getStyleClass))
     _syntaxHighlighter = Some(sh)
-    rebuild()
+    getStyleClass.add(sh.getStyleClass)
+    JavaFX.applicationThread(rebuild)
   }
 
   def rebuild() {
     _lines.clear()
 
     val ls = doc.lines.zipWithIndex.map(p => {
-      val line = new Line(p._1.toString(), p._2)
+      val line = new Line(p._1.toString(), p._2, _syntaxHighlighter)
       line.setOnMouseClicked(Events.eventHandler(onLineClicked))
       line
     })
@@ -90,6 +94,7 @@ class Textpane(doc: Document) extends VBox {
     computeCharSize()
     getStyleClass.add("textpane")
     getStyleClass.add("editor")
+    _syntaxHighlighter.foreach(h => getStyleClass.add(h.getStyleClass))
     rebuild()
   }
 
@@ -103,13 +108,26 @@ class Textpane(doc: Document) extends VBox {
   setup()
 }
 
-class Line(var text: String, var y: Int) extends HBox {
+class Line(var text: String, var y: Int, val syntaxHighlighter: Option[SyntaxHighlighter] = None) extends HBox {
 
   val texts = collection.mutable.ArrayBuffer[Text]()
 
   protected def rebuild() {
     texts.clear()
-    texts.append(createText(text))
+
+    if (!syntaxHighlighter.isDefined) {
+      texts.append(createText(text))
+    } else {
+      val highlighter = syntaxHighlighter.get
+      val fragments = highlighter.annotateLine(y, text).map(f => {
+        val t = createText(f.text)
+        f.styleClasses.split(" ").foreach(c => t.getStyleClass.add(c))
+        t
+      })
+
+      texts.appendAll(fragments)
+    }
+
     texts.foreach(t => getChildren.add(t))
   }
 

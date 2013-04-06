@@ -1,4 +1,4 @@
 
-.line .text .python {
-    -fx-fill: red;
+.python .line .text {
+    -fx-fill: yellow;
 }

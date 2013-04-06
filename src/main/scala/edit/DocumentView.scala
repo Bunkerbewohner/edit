@@ -25,6 +25,7 @@ class DocumentView(document: Document) extends StackPane {
   protected val caret = createCaret()
 
   def getScrollpane = scrollpane
+  def getTextpane = textpane
 
   var caretLayoutX = 0.0
   var caretLayoutY = 0.0

@@ -7,16 +7,19 @@ class PythonSyntaxHighlighter(SyntaxHighlighter):
     def __init__(self, doc):
         SyntaxHighlighter.__init__(self, doc)
 
-    def getStylesheet():
-        return "style.css"
+    def getStyleClass(self):
+        return "python"
 
-    def annotateLine(lineNumber, text):
+    def annotateLine(self, lineNumber, text):
         return [AnnotatedFragment(text, "python")]
 
 class PythonSyntaxHighlighterFactory(SyntaxHighlighterFactory):
 
-    def createSyntaxHighlighter(doc):
+    def createSyntaxHighlighter(self, doc):
         return PythonSyntaxHighlighter(doc)
 
 edit << RegisterSyntaxHighlighter("py", PythonSyntaxHighlighterFactory())
 edit << RegisterStylesheet(pluginDir + "style.css")
+edit << UseSyntaxHighlighting("py")
+
+print "Plugin 'python.py' was loaded"

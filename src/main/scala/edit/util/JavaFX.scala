@@ -12,4 +12,9 @@ object JavaFX {
     })
   }
 
+  def applicationThread(f: () => Unit) {
+    if (!Platform.isFxApplicationThread) runLater(f)
+    else f()
+  }
+
 }
