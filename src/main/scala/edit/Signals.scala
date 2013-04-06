@@ -31,6 +31,14 @@ trait Receptor {
   private val signals = new PriorityBlockingQueue[Signal]()
   private var alive = true
 
+  def reactLoopAsync() {
+    new Thread(new Runnable() {
+      def run() {
+        reactLoop()
+      }
+    }).start()
+  }
+
   def reactLoop() {
     while (alive) {
       react()

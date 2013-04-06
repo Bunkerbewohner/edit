@@ -1,6 +1,7 @@
 package edit.interfaces;
 
 import edit.Signal;
+import edit.view.SyntaxHighlighter;
 
 public interface Edit {
 

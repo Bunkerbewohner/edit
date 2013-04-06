@@ -7,6 +7,7 @@ import javafx.scene.layout.StackPane
 import javafx.scene.text.Font
 import java.io.File
 import edit.plugins.PluginManager
+import view.{RegisterSyntaxHighlighter, SyntaxHighlighters, SyntaxHighlighter}
 
 class Edit extends Application {
 
@@ -65,6 +66,7 @@ class Edit extends Application {
             signal match {
               case SetWindowTitle(title) => stage.setTitle(title)
               case OpenDocument(path) => editor.load(new File(path))
+              case RegisterStylesheet(path) => scene.getStylesheets.add("file:" + path)
             }
           }
         })
@@ -72,8 +74,9 @@ class Edit extends Application {
     }
 
     Edit.interface = interface
-    Signals.addReceptor(interface, List(classOf[SetWindowTitle], classOf[OpenDocument]))
+    Signals.addReceptor(interface, List(classOf[SetWindowTitle], classOf[OpenDocument], classOf[RegisterStylesheet]))
 
+    SyntaxHighlighters.init()
     PluginManager.loadPlugins("resources/plugins")
 
     new Thread(new Runnable() {
@@ -98,3 +101,4 @@ case class SetWindowTitle(title: String) extends Signal
 case class OpenDocument(path: String) extends Signal
 case class DocumentOpened(doc: Document) extends Signal
 case class Shutdown() extends Signal
+case class RegisterStylesheet(path: String) extends Signal

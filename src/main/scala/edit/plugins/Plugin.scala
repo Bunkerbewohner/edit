@@ -15,6 +15,8 @@ class Plugin(val directory: File) {
     if (!mainFile.exists()) throw new Exception("Couldn't load '" + mainFile.getAbsolutePath + "'")
 
     python.set("edit", Edit.interface)
+    python.set("pluginDir", directory.getPath + "/")
+
     python.execfile(mainFile.getAbsolutePath)
 
     _loaded = true

@@ -15,6 +15,8 @@ class Textpane(doc: Document) extends VBox {
   protected var _fontFamily: String = "Inconsolata"
   protected var _fontSize: Int = 14
 
+  protected var _syntaxHighlighter: Option[SyntaxHighlighter] = None
+
   def fontFamily = _fontFamily
   def fontFamily_=(family: String) {
     _fontFamily = family
@@ -30,6 +32,11 @@ class Textpane(doc: Document) extends VBox {
   def charWidth = _charWidth
   def textHeight = _charHeight
   def numLines = _lines.length
+
+  def syntaxHighlighter_=(sh: SyntaxHighlighter) {
+    _syntaxHighlighter = Some(sh)
+    rebuild()
+  }
 
   def rebuild() {
     _lines.clear()
@@ -65,8 +72,6 @@ class Textpane(doc: Document) extends VBox {
     text.snapshot(null, null)
     _charHeight = text.getLayoutBounds.getHeight
     _charWidth = text.getLayoutBounds.getWidth
-
-    println(_charWidth)
   }
 
   def onLineClicked(e: MouseEvent) {
