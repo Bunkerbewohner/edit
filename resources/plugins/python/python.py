@@ -2,8 +2,14 @@
 
 from edit.view import *
 from edit import *
+from org.python.modules import re
 
 class PythonSyntaxHighlighter(SyntaxHighlighter):
+
+    keywords = ["and", "del", "for", "is", "raise", "assert", "elif", "from", "lambda", "return",
+                "break", "else", "global", "not", "try", "class", "except", "if", "or", "while",
+                "continue", "exec", "import", "pass", "yield", "def", "finally", "in", "print"]
+
     def __init__(self, doc):
         SyntaxHighlighter.__init__(self, doc)
 
@@ -11,7 +17,26 @@ class PythonSyntaxHighlighter(SyntaxHighlighter):
         return "python"
 
     def annotateLine(self, lineNumber, text):
-        return [AnnotatedFragment(text, "python")]
+        fragments = []
+
+        prefix = re.match("^\s+", text)
+        if (prefix):
+            prefix = prefix.group(0)
+            fragments.append(AnnotatedFragment(prefix, ""))
+
+        tokens = re.split(" ", text)
+
+        for t in tokens:
+            classes = ""
+            for keyword in self.keywords:
+                if re.match(keyword, t):
+                    classes = "keyword"
+                    break
+
+            fragments.append(AnnotatedFragment(t, classes))
+            fragments.append(AnnotatedFragment(" ", ""))
+
+        return fragments
 
 class PythonSyntaxHighlighterFactory(SyntaxHighlighterFactory):
 

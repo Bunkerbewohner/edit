@@ -1,4 +1,4 @@
 
-.python .line .text {
-    -fx-fill: yellow;
+.python .keyword {
+    -fx-fill: #99CCFF;
 }
