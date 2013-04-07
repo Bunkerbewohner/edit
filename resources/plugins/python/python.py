@@ -25,6 +25,15 @@ class PythonSyntaxHighlighter(SyntaxHighlighter):
         tokens = [""]
 
         while i < len(text):
+
+            if text[i] == "#":
+                if len(tokens[t]) == 0:
+                    tokens[t] += text[i:]
+                    break
+                else:
+                    tokens.append(text[i:])
+                    break
+
             space = re.match("\s", text[i])
             curTokenSpace = re.match("\s", tokens[t]) or len(tokens[t]) == 0
 
@@ -49,13 +58,25 @@ class PythonSyntaxHighlighter(SyntaxHighlighter):
 
     def annotateLine(self, lineNumber, text):
 
-        if (text.startswith("#")):
+        # early exit for commented lines
+        if (re.match("^\s*#", text)):
             return [AnnotatedFragment(text, "comment")]
 
+        # other lines have to be tokenized first
         tokens = self.tokenize(text)
-        print tokens
+        fragments = []
 
-        fragments = [AnnotatedFragment(text, "")]
+        for t in tokens:
+            classes = []
+
+            if self.keywordMap.has_key(t):
+                classes.append("keyword")
+
+            if t.startswith("#"):
+                classes.append("comment")
+
+            fragments.append(AnnotatedFragment(t, " ".join(classes)))
+
         return fragments
 
 class PythonSyntaxHighlighterFactory(SyntaxHighlighterFactory):
