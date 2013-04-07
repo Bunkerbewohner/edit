@@ -2,13 +2,27 @@ package edit.view
 
 import edit.interfaces.Document
 import edit.{Receptor, Signal, Signals}
+import collection.mutable.ArrayBuffer
 
 abstract class SyntaxHighlighter(val doc: Document) {
+
+  // TODO: Remove unused cache entries at some point
+  val cache = collection.mutable.Map[String, Array[AnnotatedFragment]]()
 
   def getStyleClass: String
 
   def annotateLine(lineNumber: Int, text: String): Array[AnnotatedFragment]
 
+  def annotateLineCached(lineNumber: Int, text: String): Array[AnnotatedFragment] = {
+    if (cache.contains(text)) cache(text)
+    else updateCache(lineNumber, text)
+  }
+
+  def updateCache(lineNumber: Int, text: String) = {
+    val fragments = annotateLine(lineNumber, text)
+    cache.put(text, fragments)
+    fragments
+  }
 }
 
 trait SyntaxHighlighterFactory {

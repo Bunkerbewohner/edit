@@ -117,9 +117,10 @@ class Line(var text: String, var y: Int, val syntaxHighlighter: Option[SyntaxHig
 
     if (!syntaxHighlighter.isDefined) {
       texts.append(createText(text))
+
     } else {
       val highlighter = syntaxHighlighter.get
-      val fragments = highlighter.annotateLine(y, text).map(f => {
+      val fragments = highlighter.annotateLineCached(y, text).map(f => {
         val t = createText(f.text)
         f.styleClasses.split(" ").foreach(c => t.getStyleClass.add(c))
         t

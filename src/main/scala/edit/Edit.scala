@@ -31,6 +31,7 @@ class Edit extends Application {
 
     val scene = new Scene(root)
     scene.getStylesheets.add("file:resources/styles/default.css")
+    scene.getStylesheets.add("file:resources/styles/syntaxhighlighting-common.css")
     stage.setScene(scene)
     stage.setOnCloseRequest(Events.eventHandler(onClosing))
 

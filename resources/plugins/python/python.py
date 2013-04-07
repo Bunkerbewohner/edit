@@ -17,25 +17,12 @@ class PythonSyntaxHighlighter(SyntaxHighlighter):
         return "python"
 
     def annotateLine(self, lineNumber, text):
-        fragments = []
 
-        prefix = re.match("^\s+", text)
-        if (prefix):
-            prefix = prefix.group(0)
-            fragments.append(AnnotatedFragment(prefix, ""))
+        if (text.startswith("#")):
+            return [AnnotatedFragment(text, "comment")]
 
-        tokens = re.split(" ", text)
 
-        for t in tokens:
-            classes = ""
-            for keyword in self.keywords:
-                if re.match(keyword, t):
-                    classes = "keyword"
-                    break
-
-            fragments.append(AnnotatedFragment(t, classes))
-            fragments.append(AnnotatedFragment(" ", ""))
-
+        fragments = [AnnotatedFragment(text, "")]
         return fragments
 
 class PythonSyntaxHighlighterFactory(SyntaxHighlighterFactory):

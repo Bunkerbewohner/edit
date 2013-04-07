@@ -1,4 +1,8 @@
 
 .python .keyword {
-    -fx-fill: #99CCFF;
+    /* override styles here */
+}
+
+.python .comment {
+    /* override styles here */
 }

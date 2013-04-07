@@ -7,6 +7,8 @@ import edit.util.JavaFX._
 
 class Document() extends edit.interfaces.Document {
 
+  type LineNumber = Int
+
   var tabSize = 4
   var tabReplace = " " * tabSize
 
