@@ -23,8 +23,17 @@ class PythonSyntaxHighlighter(SyntaxHighlighter):
         i = 0
         t = 0
         tokens = [""]
+        inString = 0
 
         while i < len(text):
+
+            if inString == 0 and (text[i] == '"' or text[i] == "'"):
+                inString = 1
+                tokens[t] += text[i]
+                i += 1
+                continue
+            elif inString == 1 and text[i] != '"' and text[i] != "'":
+                inString = 0
 
             if text[i] == "#":
                 if len(tokens[t]) == 0:
@@ -64,6 +73,7 @@ class PythonSyntaxHighlighter(SyntaxHighlighter):
 
         # other lines have to be tokenized first
         tokens = self.tokenize(text)
+        print tokens
         fragments = []
 
         for t in tokens:

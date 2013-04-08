@@ -1,5 +1,6 @@
 package edit
 
+import input.KeyMap
 import javafx.application._
 import javafx.stage.{WindowEvent, Stage}
 import javafx.scene.Scene
@@ -8,6 +9,7 @@ import javafx.scene.text.Font
 import java.io.File
 import edit.plugins.PluginManager
 import view.{RegisterSyntaxHighlighter, SyntaxHighlighters, SyntaxHighlighter}
+import javafx.scene.input.{KeyEvent, KeyCombination}
 
 class Edit extends Application {
 
@@ -85,6 +87,10 @@ class Edit extends Application {
         interface.reactLoop()
       }
     }).start()
+
+    // Reload plugins function
+    val combo = KeyCombination.keyCombination("Ctrl+R")
+    KeyMap(combo) = (e:KeyEvent) => PluginManager.reload()
   }
 }
 

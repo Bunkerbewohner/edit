@@ -5,6 +5,8 @@ import java.util.concurrent.FutureTask
 
 object PluginManager {
 
+  protected var _plugins = Array[Plugin]()
+
   def listPlugins(directory: String) = {
     val dir = new File(directory)
     if (!dir.exists()) throw new Exception(s"Plugin directory '$directory' doesn't exist.")
@@ -14,8 +16,8 @@ object PluginManager {
   }
 
   def loadPlugins(directory: String) {
-    val plugins = listPlugins(directory)
-    plugins.foreach(p =>  {
+    _plugins = listPlugins(directory)
+    _plugins.foreach(p =>  {
       val thread = new Thread(new Runnable() {
         def run() {
           p.load()
@@ -23,6 +25,17 @@ object PluginManager {
       })
 
       thread.start()
+    })
+  }
+
+  def reload() {
+    println("reloading plugins...")
+    _plugins.foreach(p => {
+      new Thread(new Runnable() {
+        def run() {
+          p.load()
+        }
+      }).start()
     })
   }
 }
