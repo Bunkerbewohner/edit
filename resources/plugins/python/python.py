@@ -24,7 +24,6 @@ class PythonTokenizer:
             return ""
 
         token = self.text[i]
-def
 
 class PythonSyntaxHighlighter(SyntaxHighlighter):
 
@@ -95,7 +94,7 @@ class PythonSyntaxHighlighter(SyntaxHighlighter):
 
         # other lines have to be tokenized first
         tokens = self.tokenize(text)
-        print tokens
+
         fragments = []
 
         for t in tokens:

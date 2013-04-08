@@ -47,7 +47,7 @@ class Textpane(doc: Document) extends VBox {
 
     val ls = doc.lines.zipWithIndex.map(p => {
       val line = new Line(p._1.toString(), p._2, _syntaxHighlighter)
-      line.setOnMouseClicked(Events.eventHandler(onLineClicked))
+      line.setOnMousePressed(Events.eventHandler(onLineClicked))
       line
     })
 
