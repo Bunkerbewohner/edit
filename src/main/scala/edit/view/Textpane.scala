@@ -17,6 +17,9 @@ class Textpane(doc: Document) extends VBox {
   protected var _fontFamily: String = "Inconsolata"
   protected var _fontSize: Int = 14
 
+  // TODO: Remove unused entries from cache some time
+  protected var _lineCache = collection.mutable.Map[(Int, String), Line]()
+
   protected var _syntaxHighlighter: Option[SyntaxHighlighter] = None
 
   def fontFamily = _fontFamily
@@ -46,9 +49,15 @@ class Textpane(doc: Document) extends VBox {
     _lines.clear()
 
     val ls = doc.lines.zipWithIndex.map(p => {
-      val line = new Line(p._1.toString(), p._2, _syntaxHighlighter)
-      line.setOnMousePressed(Events.eventHandler(onLineClicked))
-      line
+      val text = p._1.toString()
+      if (_lineCache.contains((p._2, text))) {
+        _lineCache((p._2, text))
+      } else {
+        val line = new Line(p._1.toString(), p._2, _syntaxHighlighter)
+        line.setOnMousePressed(Events.eventHandler(onLineClicked))
+        _lineCache.put((p._2, text), line)
+        line
+      }
     })
 
     _lines.appendAll(ls)
