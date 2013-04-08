@@ -2,7 +2,7 @@ package edit.view
 
 import javafx.scene.layout.{HBox, VBox}
 import javafx.scene.text.{TextBuilder, Font, Text}
-import edit.{Document, Events}
+import edit.{Event, Document, Events}
 import javafx.scene.input.MouseEvent
 import javafx.application.Platform
 import edit.util.JavaFX
@@ -88,6 +88,7 @@ class Textpane(doc: Document) extends VBox {
     _currentLine = Some(line)
 
     line.getStyleClass.add("current")
+    rebuild()
   }
 
   def setup() {

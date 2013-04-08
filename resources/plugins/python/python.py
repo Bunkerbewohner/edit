@@ -4,6 +4,28 @@ from edit.view import *
 from edit import *
 from org.python.modules import re
 
+class PythonTokenizer:
+
+    tokens = []
+    s = 0
+    i = -1
+
+    def __init__(self, text):
+        self.text = text
+
+    def next(self):
+        """ Returns the next token """
+
+        def isSpace(str):
+            return re.match("\s", str)
+
+        self.i += 1
+        if self.i >= len(self.text):
+            return ""
+
+        token = self.text[i]
+def
+
 class PythonSyntaxHighlighter(SyntaxHighlighter):
 
     keywords = ["and", "del", "for", "is", "raise", "assert", "elif", "from", "lambda", "return",

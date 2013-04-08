@@ -183,7 +183,7 @@ class DocumentView(document: Document) extends StackPane {
     doc.y = 0
     rebuild()
     doc.contentChanged += (doc => rebuild())
-    doc.caretChanged += (Unit => updateCaret())
+    doc.caretChanged += (Unit => rebuild())
     textpane.init()
   }
 
